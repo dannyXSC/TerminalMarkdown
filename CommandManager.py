@@ -20,6 +20,7 @@ class CommandManager(object):
 
     def Execute(self, cmd: Command):
         if not cmd.Skipable():
+            # 如果可以不可跳过，才记录这个command
             self.__AddCommand(cmd)
         cmd.Execute()
 
@@ -28,38 +29,15 @@ class CommandManager(object):
             # 如果没有执行过命令或者已经 undo 到最初的命令，就什么都不执行
             return
         cur_cmd = self.__cmd_list[self.__pos]
-        while not cur_cmd.Undoable():
-            # 如果该命令不可 undo
-            if not cur_cmd.Skipable():
-                # 如果该命令不可跳过，就结束
-                return
-            else:
-                # 如果命令可以跳过，就跳过，继续判断
-                self.__pos -= 1
-                cur_cmd = self.__cmd_list[self.__pos]
-        if self.__pos < 0:
-            # 如果没有执行过命令或者已经 undo 到最初的命令，就什么都不执行
+        if not cur_cmd.Undoable():
+            # 如果不可undo就退出
             return
-        print(self.__pos)
         # 此时pos 指向的是可以 undo 的命令
         cur_cmd.Undo()
         # pos指向前一个命令
         self.__pos -= 1
 
     def Redo(self):
-        if self.__pos >= len(self.__cmd_list) - 1:
-            # 如果 pos 指向最后一个命令，那就没法执行 redo
-            return
-        cur_cmd = self.__cmd_list[self.__pos]
-        while not cur_cmd.Undoable():
-            # 如果该命令不可 undo
-            if not cur_cmd.Skipable():
-                # 如果该命令不可跳过，就结束
-                return
-            else:
-                # 如果命令可以跳过，就跳过，继续判断
-                self.__pos += 1
-                cur_cmd = self.__cmd_list[self.__pos]
         if self.__pos >= len(self.__cmd_list) - 1:
             # 如果 pos 指向最后一个命令，那就没法执行 redo
             return

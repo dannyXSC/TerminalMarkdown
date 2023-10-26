@@ -9,17 +9,21 @@ class SimpleMarkdownDoc(Document):
         self._lines = []
 
     def GetLines(self):
+        # 获得所有的行信息
         return self._lines
 
     def Save(self):
+        # 保存文件
         with open(self._name, 'w') as f:
             f.writelines(self._lines)
 
     def Serialize(self):
+        # 序列化文件，即把文件流转成需要的格式
         with open(self._name, 'r') as f:
             self._lines = f.readlines()
 
     def InsertRow(self, row_num, text):
+        # 在某一行插入内容
         length = len(self._lines)
         if row_num < 0 or row_num > length:
             # 错误
@@ -29,6 +33,7 @@ class SimpleMarkdownDoc(Document):
         self._lines.insert(row_num, text)
 
     def DeleteRow(self, row_num):
+        # 删除某一行的内容
         length = len(self._lines)
         if row_num < 0 or row_num >= length:
             # 错误
