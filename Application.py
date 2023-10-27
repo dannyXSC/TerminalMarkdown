@@ -52,3 +52,8 @@ class Application(metaclass=abc.ABCMeta):
     def CreateDocument(self, name) -> Document:
         # 创建具体文件的工作由子类完成
         pass
+
+    @abc.abstractmethod
+    def Run(self):
+        # 运行 app
+        pass
