@@ -1,10 +1,18 @@
+from Document.BaseMDDocument import BaseMDDocument
 from Document.Document import Document
+from Markdown.Interpreter import ItemInterpreter
 
 
-class SimpleMarkdownDoc(Document):
+class SimpleMarkdownDoc(BaseMDDocument):
     def __init__(self, name):
         super().__init__(name)
         self._lines = []
+
+    def GetRawStr(self) -> str:
+        return ''.join(self._lines)
+
+    def CreateInterpreter(self):
+        return ItemInterpreter()
 
     def GetLines(self):
         # 获得所有的行信息
@@ -20,15 +28,25 @@ class SimpleMarkdownDoc(Document):
         with open(self._name, 'r') as f:
             self._lines = f.readlines()
 
-    def InsertRow(self, row_num, text):
-        # 在某一行插入内容
+    def NewRow(self, row_num):
         length = len(self._lines)
         if row_num < 0 or row_num > length:
             # 错误
             print("Error")
             return
-        text = text + '\n'
-        self._lines.insert(row_num, text)
+        self._lines.insert(row_num, '\n')
+
+    def UpdateRow(self, row_num, text):
+        length = len(self._lines)
+        if row_num < 0 or row_num >= length:
+            # 错误
+            print("Error")
+            return
+        self._lines[row_num] = text
+
+    def InsertRow(self, row_num, text):
+        self.NewRow(row_num)
+        self.UpdateRow(row_num, text + '\n')
 
     def DeleteRow(self, row_num):
         # 删除某一行的内容

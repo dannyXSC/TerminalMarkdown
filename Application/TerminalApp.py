@@ -1,6 +1,8 @@
 from Application.Application import Application
 from Command.DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, ListCommand
 from Document.SimpleMarkdownDoc import SimpleMarkdownDoc
+from Viewer.PygameViewer import PygameViewer
+from Viewer.TerminalViewer import TerminalViewer
 
 
 class TerminalApp(Application):
@@ -9,7 +11,10 @@ class TerminalApp(Application):
 
     def CreateDocument(self, name):
         # 创建本应用支持的文件
-        return SimpleMarkdownDoc(name)
+        doc = SimpleMarkdownDoc(name)
+        doc.AttachViewer(PygameViewer(name))
+        doc.AttachViewer(TerminalViewer(name))
+        return doc
 
     def InsertRow(self, row_num, text):
         self._cmdManager.Execute(InsertRowCommand(self._activateDoc, row_num, text))
@@ -55,3 +60,4 @@ class TerminalApp(Application):
                 self.Redo()
             elif command == 'list':
                 self.List()
+            self._activateDoc.Notify()

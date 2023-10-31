@@ -2,7 +2,7 @@ from Application.TerminalApp import TerminalApp
 
 
 def main():
-    app = TerminalApp(2)
+    app = TerminalApp()
     app.Run()
 
 
