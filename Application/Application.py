@@ -1,9 +1,8 @@
 import abc
 
-from Command import Command
 from CommandManager import CommandManager
-from DerivedCommand import OpenCommand, SaveCommand
-from Document import Document
+from Command.DerivedCommand import OpenCommand, SaveCommand
+from Document.Document import Document
 
 
 class Application(metaclass=abc.ABCMeta):

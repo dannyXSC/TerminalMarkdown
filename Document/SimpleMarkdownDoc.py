@@ -1,6 +1,4 @@
-import abc
-
-from Document import Document
+from Document.Document import Document
 
 
 class SimpleMarkdownDoc(Document):

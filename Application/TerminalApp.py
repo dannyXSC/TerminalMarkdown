@@ -1,6 +1,6 @@
-from Application import Application
-from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, ListCommand
-from SimpleMarkdownDoc import SimpleMarkdownDoc
+from Application.Application import Application
+from Command.DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, ListCommand
+from Document.SimpleMarkdownDoc import SimpleMarkdownDoc
 
 
 class TerminalApp(Application):
@@ -17,7 +17,7 @@ class TerminalApp(Application):
     def InsertHead(self, text):
         self._cmdManager.Execute(InsertHeadCommand(self._activateDoc, text))
 
-    def InsertTail(self,text):
+    def InsertTail(self, text):
         self._cmdManager.Execute(InsertTailCommand(self._activateDoc, text))
 
     def List(self):

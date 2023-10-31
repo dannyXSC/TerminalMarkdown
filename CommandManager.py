@@ -1,5 +1,5 @@
 from typing import List
-from Command import Command
+from Command.Command import Command
 
 
 class CommandManager(object):

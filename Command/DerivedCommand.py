@@ -1,5 +1,5 @@
-from Command import Command
-from SimpleMarkdownDoc import SimpleMarkdownDoc
+from Command.Command import Command
+from Document.SimpleMarkdownDoc import SimpleMarkdownDoc
 
 
 class OpenCommand(Command):
