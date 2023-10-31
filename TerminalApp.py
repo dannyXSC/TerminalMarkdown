@@ -1,5 +1,5 @@
 from Application import Application
-from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, ListCommand
+from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand
 from SimpleMarkdownDoc import SimpleMarkdownDoc
 
 
@@ -19,6 +19,12 @@ class TerminalApp(Application):
 
     def InsertTail(self,text):
         self._cmdManager.Execute(InsertTailCommand(self._activateDoc, text))
+
+    def DeleteRow(self, row_num):
+        self._cmdManager.Execute(DeleteRowCommand(self._activateDoc, row_num))
+
+    def DeleteText(self, text):
+        self._cmdManager.Execute(DeleteTextCommand(self._activateDoc, text))
 
     def List(self):
         self._cmdManager.Execute(ListCommand(self._activateDoc))
@@ -49,6 +55,13 @@ class TerminalApp(Application):
             elif command == 'append-tail':
                 argument = ' '.join(input_list[1:])
                 self.InsertTail(argument)
+            elif command == 'delete':
+                if input_list[1].isdigit():
+                    row_num = int(input_list[1])
+                    self.DeleteRow(row_num)
+                else:
+                    argument = ' '.join(input_list[1:])
+                    self.DeleteText(argument)
             elif command == 'undo':
                 self.Undo()
             elif command == 'redo':
