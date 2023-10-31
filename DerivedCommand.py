@@ -87,6 +87,34 @@ class InsertTailCommand(Command):
         self._doc.DeleteRow(len(self._doc.GetLines()) - 1)
 
 
+class DeleteRowCommand(Command):
+    def __init__(self, doc: SimpleMarkdownDoc, row_num):
+        super().__init__()
+        self._doc = doc
+        self._row_num = row_num
+        self._text = doc.GetLines()[row_num-1]
+
+    def Execute(self):
+        self._doc.DeleteRow(self._row_num - 1)
+
+    def Undo(self):
+        self._doc.InsertRow(self._row_num - 1, self._text)
+
+
+class DeleteTextCommand(Command):
+    def __init__(self, doc: SimpleMarkdownDoc, text):
+        super().__init__()
+        self._doc = doc
+        self._row_num = doc.GetRowByContent(text) + 1
+        self._text = text
+
+    def Execute(self):
+        self._doc.DeleteRow(self._row_num - 1)
+
+    def Undo(self):
+        self._doc.InsertRow(self._row_num - 1, self._text)
+
+
 class ListCommand(Command):
     def __init__(self, doc: SimpleMarkdownDoc):
         super().__init__()
