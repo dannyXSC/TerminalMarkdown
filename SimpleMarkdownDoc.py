@@ -25,7 +25,9 @@ class SimpleMarkdownDoc(Document):
     def InsertRow(self, row_num, text):
         # 在某一行插入内容
         length = len(self._lines)
-        if row_num < 0 or row_num > length:
+        # 如果row num大于length 则要插入到最后一行
+        row_num = min(row_num, length)
+        if row_num < 0:
             # 错误
             print("Error")
             return
