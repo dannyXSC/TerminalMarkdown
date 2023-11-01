@@ -1,12 +1,13 @@
 from Application import Application
 from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand, HistoryCommand
 from SimpleMarkdownDoc import SimpleMarkdownDoc
-
-
+from Logger import Logger
+from Sessioner import Session
 class TerminalApp(Application):
     def __init__(self, cmd_capacity=50):
         super().__init__(cmd_capacity)
         self.logger = Logger()
+        self.session = Session()
 
     def CreateDocument(self, name):
         # 创建本应用支持的文件
@@ -37,12 +38,16 @@ class TerminalApp(Application):
         while True:
             user_input = input(r"请输入命令[q\Q退出]: ")
             if user_input == 'q' or user_input == 'Q':
-                self.logger.close()
+                self.session.quit()
                 break
+            self.logger.log(user_input)
             input_list = user_input.split()
             command = input_list[0]
             if command == 'load':
                 argument = ' '.join(input_list[1:])
+                filename = user_input.split(" ")[1]
+                self.session.load(filename)
+                self.session.current=filename
                 self.Open(argument)
             elif command == 'save':
                 self.Save()
@@ -78,3 +83,10 @@ class TerminalApp(Application):
                     self.History(self.logger.get_content(), 0)
                 else:
                     self.History(self.logger.get_content(), int(input_list[1]))
+            elif command == 'stats':
+                command_parts = user_input.split(" ")
+                if len(command_parts) == 2:
+                    self.session.stats(command_parts[1])
+                else:
+                    print("Invalid stats command.")
+
