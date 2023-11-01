@@ -1,3 +1,5 @@
+import abc
+
 from Application.Application import Application
 from Command.DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, ListCommand
 from Document.SimpleMarkdownDoc import SimpleMarkdownDoc
@@ -33,31 +35,136 @@ class TerminalApp(Application):
             user_input = input(r"请输入命令[q\Q退出]: ")
             if user_input == 'q' or user_input == 'Q':
                 break
-            input_list = user_input.split()
-            command = input_list[0]
-            if command == 'load':
+            handler = LoadHandler()
+            handler = SaveHandler(handler)
+            handler = InsertHandler(handler)
+            handler = AppendHeadHandler(handler)
+            handler = AppendTailHandler(handler)
+            handler = UndoHandler(handler)
+            handler = RedoHandler(handler)
+            handler = ListHandler(handler)
+            state = handler.HandleRequest(user_input, self)
+            if state:
+                self._activateDoc.Notify()
+
+
+class BaseHandler(metaclass=abc.ABCMeta):
+    def __init__(self, successor=None):
+        self._successor: BaseHandler = successor
+
+    @abc.abstractmethod
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        pass
+
+
+class LoadHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'load':
+            argument = ' '.join(input_list[1:])
+            context.Open(argument)
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class SaveHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'save':
+            context.Save()
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class InsertHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'insert':
+            if input_list[1].isdigit():
+                row_num = int(input_list[1])
+                argument = ' '.join(input_list[2:])
+                context.InsertRow(row_num, argument)
+            else:
                 argument = ' '.join(input_list[1:])
-                self.Open(argument)
-            elif command == 'save':
-                self.Save()
-            elif command == 'insert':
-                if input_list[1].isdigit():
-                    row_num = int(input_list[1])
-                    argument = ' '.join(input_list[2:])
-                    self.InsertRow(row_num, argument)
-                else:
-                    argument = ' '.join(input_list[1:])
-                    self.InsertTail(argument)
-            elif command == 'append-head':
-                argument = ' '.join(input_list[1:])
-                self.InsertHead(argument)
-            elif command == 'append-tail':
-                argument = ' '.join(input_list[1:])
-                self.InsertTail(argument)
-            elif command == 'undo':
-                self.Undo()
-            elif command == 'redo':
-                self.Redo()
-            elif command == 'list':
-                self.List()
-            self._activateDoc.Notify()
+                context.InsertTail(argument)
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class AppendHeadHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'append-head':
+            argument = ' '.join(input_list[1:])
+            context.InsertHead(argument)
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class AppendTailHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'append-tail':
+            argument = ' '.join(input_list[1:])
+            context.InsertTail(argument)
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class UndoHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'undo':
+            context.Undo()
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class RedoHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'redo':
+            context.Redo()
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False
+
+
+class ListHandler(BaseHandler):
+    def HandleRequest(self, user_input, context: TerminalApp) -> bool:
+        input_list = user_input.split()
+        command = input_list[0]
+        if command == 'list':
+            context.List()
+            return True
+        elif self._successor:
+            return self._successor.HandleRequest(user_input, context)
+        else:
+            return False

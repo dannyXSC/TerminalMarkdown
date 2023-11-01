@@ -16,9 +16,3 @@ if __name__ == '__main__':
     5. 统计模块
     """
     main()
-
-
-"""
-1. 重写 Document
-2. 用 pygame 写一个可视化的 markdown
-"""
