@@ -1,5 +1,5 @@
 from Application import Application
-from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand, HistoryCommand
+from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand, HistoryCommand,ListTreeCommand
 from SimpleMarkdownDoc import SimpleMarkdownDoc
 from Logger import Logger
 from Sessioner import Session
@@ -30,6 +30,9 @@ class TerminalApp(Application):
 
     def List(self):
         self._cmdManager.Execute(ListCommand(self._activateDoc))
+
+    def ListTree(self):
+        self._cmdManager.Execute(ListTreeCommand(self._activateDoc))
 
     def History(self, log_list, log_num):
         self._cmdManager.Execute(HistoryCommand(log_list, log_num))
@@ -78,6 +81,8 @@ class TerminalApp(Application):
                 self.Redo()
             elif command == 'list':
                 self.List()
+            elif command == "list-tree":
+                self.ListTree()
             elif command == 'history':
                 if user_input == command:
                     self.History(self.logger.get_content(), 0)
