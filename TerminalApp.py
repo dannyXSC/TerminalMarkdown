@@ -1,11 +1,12 @@
 from Application import Application
-from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand
+from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand, HistoryCommand
 from SimpleMarkdownDoc import SimpleMarkdownDoc
 
 
 class TerminalApp(Application):
     def __init__(self, cmd_capacity=50):
         super().__init__(cmd_capacity)
+        self.logger = Logger()
 
     def CreateDocument(self, name):
         # 创建本应用支持的文件
@@ -29,10 +30,14 @@ class TerminalApp(Application):
     def List(self):
         self._cmdManager.Execute(ListCommand(self._activateDoc))
 
+    def History(self, log_list, log_num):
+        self._cmdManager.Execute(HistoryCommand(log_list, log_num))
+
     def Run(self):
         while True:
             user_input = input(r"请输入命令[q\Q退出]: ")
             if user_input == 'q' or user_input == 'Q':
+                self.logger.close()
                 break
             input_list = user_input.split()
             command = input_list[0]
@@ -68,3 +73,8 @@ class TerminalApp(Application):
                 self.Redo()
             elif command == 'list':
                 self.List()
+            elif command == 'history':
+                if user_input == command:
+                    self.History(self.logger.get_content(), 0)
+                else:
+                    self.History(self.logger.get_content(), int(input_list[1]))
