@@ -1,6 +1,65 @@
 from Command import Command
 from SimpleMarkdownDoc import SimpleMarkdownDoc
 
+def print_array_as_tree(arr):
+    stack = []
+    last_star_level = None  # 用于记录最后一个*项的层级
+
+    for item in arr:
+        # 动态计算层级
+        level = 0
+        while item.startswith('#'):
+            level += 1
+            item = item[1:]
+
+        item = item.strip()
+
+        if level == 0 and item.startswith('* '):
+            if last_star_level is not None:
+                level = last_star_level  # 如果之前已经有*项，使用同一层级
+            else:
+                level = (stack[-1] + 1) if stack else 1  # 否则，设置为最后一个#项的子项
+
+            last_star_level = level  # 记录这个*项的层级
+            item = item[2:]
+        else:
+            last_star_level = None  # 如果不是*项，重置最后一个*项的层级
+
+        if level == 0:
+            continue  # 如果层级仍为0，则跳过这一项
+
+        # 保持当前层级的元素
+        stack = stack[:level]
+
+        # 计算缩进
+        indent = '    ' * (level - 1)
+
+        # 判断是否是新的层级还是同一层级的另一个元素
+        if stack and stack[-1] == level:
+            print(indent + '├── ' + item)
+        else:
+            print(indent + '└── ' + item)
+        stack.append(level)  # 只有当level不为0时，才添加到stack里
+
+
+class ListTreeCommand(Command):
+    def __init__(self, doc: SimpleMarkdownDoc):
+        super().__init__()
+        self._doc = doc
+
+    def Execute(self):
+        lines = self._doc.GetLines()
+        new_lines = []
+        for line in lines:
+            new_line = line[:-1]
+            new_lines.append(new_line)
+        print(new_lines)
+        print_array_as_tree(new_lines)
+
+    def Undo(self):
+        raise Exception
+        pass
+
 
 class OpenCommand(Command):
     def __init__(self, app, name):
