@@ -133,3 +133,23 @@ class ListCommand(Command):
 
     def Skipable(self):
         return True
+
+
+class HistoryCommand(Command):
+    def __init__(self, log_list, log_num):
+        super().__init__()
+        self.log_list = log_list[-log_num:]
+        self.log_num = log_num
+
+    def Execute(self):
+        for log in self.log_list:
+            print(log, end="")
+
+    def Undo(self):
+        pass
+
+    def Undoable(self):
+        return False
+
+    def Skipable(self):
+        return True
