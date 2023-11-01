@@ -3,7 +3,7 @@ import abc
 
 
 class BasicLogger(metaclass=abc.ABCMeta):
-    def __int__(self):
+    def __init__(self):
         pass
 
     def log(self, content):
@@ -15,23 +15,26 @@ class BasicLogger(metaclass=abc.ABCMeta):
     def get_time(self):
         return time.strftime('%Y%m%d %H:%M:%S', time.localtime())
 
-    def close(self):
-        pass
-
 
 class Logger(BasicLogger):
-    def __int__(self):
-        self.f = open(file='log.txt', mode='a+', encoding='utf-8')
-        start_content = f'session start at {self.get_time()}\n'
-        self.f.write(start_content)
+    def __init__(self):
+        super().__init__()
+        with open(file='log.txt', mode='a+', encoding='utf-8') as f:
+            start_content = f'session start at {self.get_time()}\n'
+            f.write(start_content)
+            f.close()
 
     def log(self, command):
         content = f'{self.get_time()} {command}\n'
-        self.f.write(content)
+        with open(file='log.txt', mode='a+', encoding='utf-8') as f:
+            f.write(content)
+            f.close()
 
     def get_content(self):
-        content = self.f.readlines()
+        with open(file='log.txt', mode='r', encoding='utf-8') as f:
+            content = f.readlines()
+            f.close()
         return content
 
-    def close(self):
-        self.f.close()
+
+
