@@ -1,45 +1,73 @@
 from Command import Command
 from SimpleMarkdownDoc import SimpleMarkdownDoc
+import re
 
-def print_array_as_tree(arr):
-    stack = []
-    last_star_level = None  # 用于记录最后一个*项的层级
 
-    for item in arr:
-        # 动态计算层级
-        level = 0
-        while item.startswith('#'):
-            level += 1
-            item = item[1:]
-
-        item = item.strip()
-
-        if level == 0 and item.startswith('* '):
-            if last_star_level is not None:
-                level = last_star_level  # 如果之前已经有*项，使用同一层级
+# 返回层级，标题的level为'#'的数量，文本的level为0
+def getLevel(text):
+    pattern = r'^(#+)( +)(\S+)'
+    # 正则表达匹配标题 一个以上# + 一个以上空格 + 一个以上非空白字符
+    result  = re.search( pattern, text, re.M|re.I)
+    
+    level = 0
+    if result: 
+        # 说明是标题
+        for index in range(len(text)):
+            if text[index]=='#':
+                level+=1
             else:
-                level = (stack[-1] + 1) if stack else 1  # 否则，设置为最后一个#项的子项
+                break
 
-            last_star_level = level  # 记录这个*项的层级
-            item = item[2:]
-        else:
-            last_star_level = None  # 如果不是*项，重置最后一个*项的层级
+    return level
 
-        if level == 0:
-            continue  # 如果层级仍为0，则跳过这一项
-
-        # 保持当前层级的元素
-        stack = stack[:level]
-
+def print_array_as_tree(arr,curDirIndex=None):
+    # curDirIndex表示当前目录的index
+    # 为None表示打印全部
+    
+    last_dirLevel = 0  # 用于记录上一个标题的层级
+    last_prinIndentNum = 0 # 记录上一个item的层级
+    
+    beginIndex = 0
+    if curDirIndex is not None:
+        curDirIndex = min(curDirIndex,len(arr)-1)
+        beginIndex = curDirIndex
+        curDirLevel = getLevel(arr[curDirIndex])
+        
+    
+    for index in range(beginIndex,len(arr)):
+        item = arr[index]
+        
+        if(len(item)==0 or item.isspace()): # 只含空字符串跳过
+            continue
+        
+        # 计算层级
+        level = getLevel(item)
+        if level>0:
+            item = item[level:].strip() # 标题去除开头的'#'
+            last_dirLevel = level
+            printIndentNum = level - 1 
+        else: 
+            # 说明是正文 
+            printIndentNum = last_dirLevel 
+        
+        if curDirIndex is not None:
+            if index!=curDirIndex and level>0 and level<=curDirLevel:
+                # 打印当前目录时，遇到小于等于curDirLevel的标题停止打印
+                return 
+       
         # 计算缩进
-        indent = '    ' * (level - 1)
+        if(curDirIndex is not None):
+            # 打印当前目录时，从顶格开始打印
+            indent = '    ' * (printIndentNum-curDirLevel+1)
+        else:
+            indent = '    ' * printIndentNum
 
-        # 判断是否是新的层级还是同一层级的另一个元素
-        if stack and stack[-1] == level:
+    
+        if last_prinIndentNum != printIndentNum:
             print(indent + '├── ' + item)
         else:
             print(indent + '└── ' + item)
-        stack.append(level)  # 只有当level不为0时，才添加到stack里
+        last_prinIndentNum = printIndentNum
 
 
 class ListTreeCommand(Command):
@@ -51,15 +79,74 @@ class ListTreeCommand(Command):
         lines = self._doc.GetLines()
         new_lines = []
         for line in lines:
-            new_line = line[:-1]
+            new_line = line[:-1] # 去除回车
             new_lines.append(new_line)
-        print(new_lines)
+        # print(new_lines)
         print_array_as_tree(new_lines)
 
     def Undo(self):
         raise Exception
         pass
+    
+    def Undoable(self):
+        return False
 
+    def Skipable(self):
+        return True
+
+
+class DirTreeCommand(Command):
+    def __init__(self, doc: SimpleMarkdownDoc,text:str):
+        super().__init__()
+        self._doc = doc
+        self._text = text
+
+    def Execute(self):
+        
+        lines = self._doc.GetLines()
+        new_lines = []
+        for line in lines:
+            new_line = line[:-1] # 去除回车
+            new_lines.append(new_line)
+        
+        title = self._text.strip()
+        if len(title)==0 or title.isspace():  
+            # title为空字符串则根据打印当前工作目录
+            curLine = self._doc.current_line
+            if(curLine==-1): # 为-1说明尚未修改文档，则打印全部
+                print_array_as_tree(new_lines)
+                return 
+            level = 0 
+            for index in range(curLine,-1,-1): 
+                # curLine从后往前找到的第一个dir就是当前目录
+                level = getLevel(new_lines[index])
+                if(level>0):    
+                    print_array_as_tree(new_lines,index)
+                    break
+            if(level==0):
+                print_array_as_tree(new_lines) # 如果找不到dir，那就打印全部
+        
+        else:
+            # title不为空
+            level = 0 
+            for index in range(0,len(new_lines)): 
+                level = getLevel(new_lines[index])
+                if(level>0): 
+                    item = new_lines[index][level:].strip() # 去除前面的'#'
+                    if(item==title):
+                        print_array_as_tree(new_lines,index)
+                        break
+        
+        
+    def Undo(self):
+        raise Exception
+        pass
+    
+    def Undoable(self):
+        return False
+
+    def Skipable(self):
+        return True
 
 class OpenCommand(Command):
     def __init__(self, app, name):
