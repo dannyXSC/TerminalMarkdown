@@ -1,8 +1,10 @@
 from Application import Application
-from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand, ListCommand, HistoryCommand,ListTreeCommand
+from DerivedCommand import InsertRowCommand, InsertHeadCommand, InsertTailCommand, DeleteRowCommand, DeleteTextCommand,\
+                    ListCommand, HistoryCommand,ListTreeCommand,DirTreeCommand
 from SimpleMarkdownDoc import SimpleMarkdownDoc
 from Logger import Logger
 from Sessioner import Session
+
 class TerminalApp(Application):
     def __init__(self, cmd_capacity=50):
         super().__init__(cmd_capacity)
@@ -33,6 +35,9 @@ class TerminalApp(Application):
 
     def ListTree(self):
         self._cmdManager.Execute(ListTreeCommand(self._activateDoc))
+        
+    def DirTree(self,text):
+        self._cmdManager.Execute(DirTreeCommand(self._activateDoc,text))
 
     def History(self, log_list, log_num):
         self._cmdManager.Execute(HistoryCommand(log_list, log_num))
@@ -83,6 +88,11 @@ class TerminalApp(Application):
                 self.List()
             elif command == "list-tree":
                 self.ListTree()
+            elif command == "dir-tree":
+                if(len(input_list)==1):
+                    self.DirTree('')
+                else:
+                    self.DirTree(input_list[1])
             elif command == 'history':
                 if user_input == command:
                     self.History(self.logger.get_content(), 0)
