@@ -351,3 +351,19 @@ session start at 20231113 15:02:11
 20231113 15:02:13 history 4
 session start at 20231113 15:20:30
 session start at 20231113 15:20:50
+session start at 20231114 16:02:41
+session start at 20231114 16:02:41
+session start at 20231114 16:03:09
+session start at 20231114 16:03:09
+session start at 20231114 16:03:29
+session start at 20231114 16:03:29
+./test.md 0     
+./test2.md 0     
+session start at 20231114 16:12:12
+session start at 20231114 16:12:12
+session start at 20231114 16:12:47
+session start at 20231114 16:12:47
+session start at 20231114 16:14:44
+session start at 20231114 16:14:44
+./test.md 0     
+./test2.md 0     
