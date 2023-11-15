@@ -367,3 +367,7 @@ session start at 20231114 16:14:44
 session start at 20231114 16:14:44
 ./test.md 0     
 ./test2.md 0     
+session start at 20231115 12:08:58
+session start at 20231115 12:08:58
+./test.md 0 ·ÖÖÓ
+./test2.md 0 ·ÖÖÓ

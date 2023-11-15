@@ -54,3 +54,17 @@ class SimpleMarkdownDoc(Document):
             if content.find(text) != -1:
                 return i
         return -1
+
+
+class ProxyDoc(SimpleMarkdownDoc):
+    def __init__(self, name):
+        super().__init__(name)
+        self.is_change = False
+
+    def InsertRow(self, row_num, text):
+        super().InsertRow(row_num,text)
+        self.is_change = True
+
+    def Save(self):
+        super().Save()
+        self.is_change = False

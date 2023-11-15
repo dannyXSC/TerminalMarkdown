@@ -71,3 +71,25 @@ time.sleep(0.5)
 print("quit test2.md")
 app2.session.quit()
 
+
+from Command import Command
+from SimpleMarkdownDoc import ProxyDoc
+from TerminalApp import TerminalApp,Application
+
+class ListDocCommand(Command):
+    def __init__(self, app:Application):
+        super().__init__()
+        self._app = app
+
+    def Execute(self):
+        for doc in app._docList:
+            print(doc.GetName()+("" if not doc.is_change else "*"),end="")
+
+    def Undo(self):
+        pass
+
+    def Undoable(self):
+        return False
+
+    def Skipable(self):
+        return True
